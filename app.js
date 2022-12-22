@@ -45,6 +45,7 @@ const TodoAppSchema = new mongoose.Schema({
   password: String,
   email: String,
   googleId: String,
+  Task: Array,
 });
 
 //initializes installed plugin
@@ -53,6 +54,15 @@ TodoAppSchema.plugin(findOrCreate);
 
 //creating user
 const User = new mongoose.model("User", TodoAppSchema);
+
+const item1 = new User({
+  Task: "Welcome to your to do list",
+});
+const item2 = new User({
+  Task: "Hit the + button to add a new item",
+});
+
+const itemsarray = [item1, item2];
 
 //getting user model to use passport
 passport.use(User.createStrategy());
@@ -96,10 +106,10 @@ passport.use(
 );
 
 //sets mailchimp up
-mailchimp.setConfig({
-  apiKey: process.env.API_KEY,
-  server: "us8",
-});
+// mailchimp.setConfig({
+//   apiKey: process.env.API_KEY,
+//   server: "us8",
+// });
 
 //needed to route auth
 app.get(
@@ -123,13 +133,23 @@ app.get(
 app.get("/", function (req, res) {
   //checks if the user is authenticated
   if (req.isAuthenticated()) {
-    User.findById(req.user.id, function (err, founduser) {
+    User.findById(req.user.id, function (err, foundUser) {
       if (err) {
         console.log(err);
       } else {
-        if (founduser) {
-          console.log("found");
-          res.render("index");
+        if (foundUser) {
+          console.log("found task");
+          if (foundUser.Task.length === 0) {
+            foundUser.Task.push(item1);
+            foundUser.Task.push(item2);
+            foundUser.save();
+            res.redirect("/");
+          } else {
+            res.render("index", {
+              ListTitle: "Today",
+              NewTasks: foundUser.Task,
+            });
+          }
         }
       }
     });
@@ -138,6 +158,43 @@ app.get("/", function (req, res) {
     res.redirect("/login");
   }
 });
+
+// // for the added tasks
+app.post("/", function (req, res) {
+  const newTask = req.body.newTask;
+  const listName = req.body.add;
+
+  const newtask = new User({
+    Task: newTask,
+  });
+  User.findById(req.user.id, function (err, user) {
+    if (listName === "Today") {
+      user.Task.push(newtask);
+      user.save();
+      console.log(user);
+      res.redirect("/");
+      console.log("todaaaa");
+    } else {
+      console.log("errorss");
+    }
+  });
+});
+
+// for the added tasks
+// app.post('/', function(req,res){
+//    const newTask = req.body.newTask;
+//    const listName = req.body.add;
+
+//    const newtask = new User({
+//      Task: newTask,
+//    });
+//    if(listName === "Today"){
+//     newtask.save();
+//     res.redirect('/');
+//   }else{
+//     console.log('errorss');
+//   }
+// });
 
 app
   .route("/login")
@@ -183,28 +240,28 @@ app
             console.log(err);
 
             //this sends a response back to my mailchimp list
-            const listId = process.env.LIST_ID;
-            const subscribingUser = {
-              firstName: req.body.username,
-              lastName: " ",
-              email: req.body.email,
-            };
+            // const listId = process.env.LIST_ID;
+            // const subscribingUser = {
+            //   firstName: req.body.username,
+            //   lastName: " ",
+            //   email: req.body.email,
+            // };
 
-            async function run() {
-              const response = await mailchimp.lists.addListMember(listId, {
-                email_address: subscribingUser.email,
-                status: "subscribed",
-                merge_fields: {
-                  FNAME: subscribingUser.firstName,
-                  LNAME: subscribingUser.lastName,
-                },
-              });
+            // async function run() {
+            //   const response = await mailchimp.lists.addListMember(listId, {
+            //     email_address: subscribingUser.email,
+            //     status: "subscribed",
+            //     merge_fields: {
+            //       FNAME: subscribingUser.firstName,
+            //       LNAME: subscribingUser.lastName,
+            //     },
+            //   });
 
-              console.log(
-                `Successfully added contact as an audience member & The contact's status is ${response.status}`
-              );
-            }
-            run();
+            //   console.log(
+            //     `Successfully added contact as an audience member & The contact's status is ${response.status}`
+            //   );
+            // }
+            // run();
             //ends here
 
             res.redirect("/");

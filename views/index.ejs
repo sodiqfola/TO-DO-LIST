@@ -13,26 +13,28 @@
 <body>
     <section class="app">
         <div class="box date ">
-            <h1 class=""> 19 Monday, 2022</h1>           
+            <h1 class=""> <%= ListTitle %> </h1>
         </div>
         <div class="box menu">
             <i class='bx bx-menu'></i>
             <h1> Title </h1>
-          <i class='bx bx-dots-vertical-rounded'></i> <!-- add logout here  -->
+            <i class='bx bx-dots-vertical-rounded'></i> <!-- add logout here  -->
         </div>
 
         <div class="app-box">
+     <%   NewTasks.forEach(function(NewTask) { %>
             <form action="" class="form-task">
                 <div class="item">
-                    <input type="checkbox" name=checkbox"" id="">                    
-                    <p class="taks"> doings </p>
+                    <input type="checkbox" name=checkbox"" id="">
+                    <p class="taks"> <%= NewTask.Task %> </p>
                     <i class='bx bx-trash bx-tada'></i>
                 </div>
             </form>
+      <%   }) %>
 
-            <form action="" class="item">
-                <input type="text" placeholder="Add Task" autocomplete="off">
-                <button type="submit">+</button>
+            <form action="/" method="post" class="item">
+                <input type="text" name="newTask" placeholder="Add Task" autocomplete="off">
+                <button type="submit" name="add" value="<%= ListTitle %>">+</button>
             </form>
         </div>
     </section>
