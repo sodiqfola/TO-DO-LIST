@@ -1,59 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="css/styles.css">
-    <title>TO DO LIST</title>
-</head>
+<%- include('partials/header') %>
 
 <body>
     <section class="app">
-        <div class="box date ">
-            <h1 class=""> <%= ListTitle %> </h1>
-        </div>
-        <div class="box menu">
-            <i class='bx bx-menu'></i>
-            <h1> Title </h1>
-            <i class='bx bx-dots-vertical-rounded'></i> <!-- add logout here  -->
+        <div class="top">
+            <div class="box date ">
+                <h1 class=""> <%= ListTitle %> </h1>
+            </div>
+            <div class="box menu">
+                <i class='bx bx-menu'></i>
+                <h1> Title </h1>
+                <i class='bx bx-dots-vertical-rounded'></i> <!-- add logout here  -->
+            </div>
+
+            <div class="logout" id="log">
+                <div class="logout-content">
+                    <div class="log">
+                        <p class="logout-text">
+                            Logout
+                        </p>
+                        <a href="logout" class="logged-out">
+                            <i class='bx bx-log-out'></i>
+                        </a>
+                        <i class='bx bx-x exit'></i>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="app-box">
-     <%   NewTasks.forEach(function(NewTask) { %>
-            <form action="" class="form-task">
+            <%   NewTasks.forEach(function(NewTask) { %>
+            <form action="/delete" method="post"  class="form-task">
                 <div class="item">
                     <input type="checkbox" name=checkbox"" id="">
-                    <p class="taks"> <%= NewTask.Task %> </p>
+                    <p class="taks"> <%= NewTask.Task %> </p>                
+                   <button type="submit" name="deleteIcon" class="del-btn" value="<%= NewTask.Task %>">
                     <i class='bx bx-trash bx-tada'></i>
+                   </button> 
+                     <input type="hidden" name="delCustomList" value="<%= ListTitle %>" />
                 </div>
             </form>
-      <%   }) %>
+            <%   }) %>
 
             <form action="/" method="post" class="item">
                 <input type="text" name="newTask" placeholder="Add Task" autocomplete="off">
-                <button type="submit" name="add" value="<%= ListTitle %>">+</button>
+                <button type="submit" class="btn" name="add" value="<%= ListTitle %>">+</button>
             </form>
         </div>
     </section>
 
-    <div class="modal" id="myModal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <p>Some text ........</p>
-        </div>
-    </div>
+   
 
-    <footer>
-        <p>
-            copyright &copy; Mugen
-        </p>
-    </footer>
+    <%- include('partials/footer') %>
 
 
-    <script src="js/index.js"></script>
 </body>
 
 </html>

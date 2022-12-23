@@ -62,7 +62,7 @@ const item2 = new User({
   Task: "Hit the + button to add a new item",
 });
 
-const itemsarray = [item1, item2];
+
 
 //getting user model to use passport
 passport.use(User.createStrategy());
@@ -105,11 +105,6 @@ passport.use(
   )
 );
 
-//sets mailchimp up
-// mailchimp.setConfig({
-//   apiKey: process.env.API_KEY,
-//   server: "us8",
-// });
 
 //needed to route auth
 app.get(
@@ -129,7 +124,7 @@ app.get(
   }
 );
 
-// the dto do home page
+// the route to do home page
 app.get("/", function (req, res) {
   //checks if the user is authenticated
   if (req.isAuthenticated()) {
@@ -138,23 +133,29 @@ app.get("/", function (req, res) {
         console.log(err);
       } else {
         if (foundUser) {
-          console.log("found task");
+          //if user is found, then it pushess two defualts info to the app
+          console.log("found user");
           if (foundUser.Task.length === 0) {
             foundUser.Task.push(item1);
             foundUser.Task.push(item2);
             foundUser.save();
+
             res.redirect("/");
+            return;
           } else {
             res.render("index", {
               ListTitle: "Today",
               NewTasks: foundUser.Task,
             });
+            console.log("found user & tasks");
           }
+        } else {
+          res.redirect("/register");
         }
       }
     });
   } else {
-    //if user isn't it redirects to login in page
+    //if user isn't it authenticated redirects to login in page
     res.redirect("/login");
   }
 });
@@ -164,37 +165,23 @@ app.post("/", function (req, res) {
   const newTask = req.body.newTask;
   const listName = req.body.add;
 
+ // stores uses new added task
   const newtask = new User({
     Task: newTask,
   });
+
   User.findById(req.user.id, function (err, user) {
     if (listName === "Today") {
       user.Task.push(newtask);
-      user.save();
-      console.log(user);
+      user.save(); //saves added task
+      console.log('task added');
       res.redirect("/");
-      console.log("todaaaa");
+      
     } else {
-      console.log("errorss");
+      console.log("errors");
     }
   });
 });
-
-// for the added tasks
-// app.post('/', function(req,res){
-//    const newTask = req.body.newTask;
-//    const listName = req.body.add;
-
-//    const newtask = new User({
-//      Task: newTask,
-//    });
-//    if(listName === "Today"){
-//     newtask.save();
-//     res.redirect('/');
-//   }else{
-//     console.log('errorss');
-//   }
-// });
 
 app
   .route("/login")
@@ -239,37 +226,51 @@ app
           passport.authenticate("local")(req, res, function (err) {
             console.log(err);
 
-            //this sends a response back to my mailchimp list
-            // const listId = process.env.LIST_ID;
-            // const subscribingUser = {
-            //   firstName: req.body.username,
-            //   lastName: " ",
-            //   email: req.body.email,
-            // };
-
-            // async function run() {
-            //   const response = await mailchimp.lists.addListMember(listId, {
-            //     email_address: subscribingUser.email,
-            //     status: "subscribed",
-            //     merge_fields: {
-            //       FNAME: subscribingUser.firstName,
-            //       LNAME: subscribingUser.lastName,
-            //     },
-            //   });
-
-            //   console.log(
-            //     `Successfully added contact as an audience member & The contact's status is ${response.status}`
-            //   );
-            // }
-            // run();
-            //ends here
-
             res.redirect("/");
           });
         }
       }
     );
   });
+
+app.post("/delete", function (req, res) {
+  const checkedTask = req.body.deleteIcon; //returns the value of the delete task
+  const delList = req.body.delCustomList;//returns the list in which it was created
+ 
+  if (delList === "Today") {
+    User.findById(req.user.id, function (err, foundUser) { //finds the user with the given id
+      if (err) {
+        console.log(err);        
+      } else {       
+        foundUser.Task.forEach(function (task) {
+
+          if (task.Task[0] === checkedTask) {// task.Task[0] gives the value of the task itself
+            //console.log(task.Task);    // returns the task value as an object.               
+            console.log("match");                    
+            User.updateOne(
+              { _id: req.user.id },
+              { $pull: { Task: task } },// removes the task from the database
+              function (err, results) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  res.redirect("/");
+                }
+              }
+            );
+          
+          } else {
+            console.log("no match");
+            
+          }
+        });
+
+        
+      }
+    });
+  }
+  
+});
 
 app.get("/logout", function (req, res, next) {
   //log users out of the session
@@ -289,3 +290,74 @@ if (port == null || port == "") {
 app.listen(port, function () {
   console.log("server running at port 3000");
 });
+
+
+//code to make mailchimp api work
+
+
+//sets mailchimp up
+// mailchimp.setConfig({
+//   apiKey: process.env.API_KEY,
+//   server: "us8",
+// });
+
+//this sends a response back to my mailchimp list
+// const listId = process.env.LIST_ID;
+// const subscribingUser = {
+//   firstName: req.body.username,
+//   lastName: " ",
+//   email: req.body.email,
+// };
+
+// async function run() {
+//   const response = await mailchimp.lists.addListMember(listId, {
+//     email_address: subscribingUser.email,
+//     status: "subscribed",
+//     merge_fields: {
+//       FNAME: subscribingUser.firstName,
+//       LNAME: subscribingUser.lastName,
+//     },
+//   });
+
+//   console.log(
+//     `Successfully added contact as an audience member & The contact's status is ${response.status}`
+//   );
+// }
+// run();
+//ends here
+
+//  if(!err){
+//   if(listName === 'Today'){
+//     if(user){
+//       User.updateOne(
+//         { _id: req.user.id },
+//         { $push: { Task: newTask } },
+//         function(err){
+//             if (err) {
+//               console.log(err);
+//             } else {
+//               res.redirect("/");
+//             }
+//         }
+//       );
+//     }
+//   }
+//  }else{
+//    console.log(err);
+//  }
+
+// for the added tasks
+// app.post('/', function(req,res){
+//    const newTask = req.body.newTask;
+//    const listName = req.body.add;
+
+//    const newtask = new User({
+//      Task: newTask,
+//    });
+//    if(listName === "Today"){
+//     newtask.save();
+//     res.redirect('/');
+//   }else{
+//     console.log('errorss');
+//   }
+// });
