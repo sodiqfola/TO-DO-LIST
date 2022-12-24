@@ -1,11 +1,16 @@
-
-
- <div class="modal" id="myModal">
-     <div class="modal-content">
-         <span class="close-button">&times;</span>
-         <p>Some text ........</p>
-     </div>
- </div>
+<div class="modal" id="myModal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <form action="/NEW_LIST" method="post">            
+            <label class="new-label" for="list"> Create new List: </label>
+            <div class="list-fx">
+                <input class="new-input" type="text" name="CustomList" id="">
+                <button class="btn" type="submit">+</button>
+                <input type="hidden" name="delCustomList" value="<%= ListTitle %>" />
+            </div>
+        </form>
+    </div>
+</div>
 
 
 <footer>

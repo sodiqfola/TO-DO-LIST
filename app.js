@@ -48,12 +48,18 @@ const TodoAppSchema = new mongoose.Schema({
   Task: Array,
 });
 
+//schema for new list
+const NewListSchema = new mongoose.Schema({
+  title: String,
+  newTask: Array,
+});
 //initializes installed plugin
 TodoAppSchema.plugin(passportLocalMongoose);
 TodoAppSchema.plugin(findOrCreate);
 
 //creating user
 const User = new mongoose.model("User", TodoAppSchema);
+const NewList =  mongoose.model("NewList", NewListSchema);
 
 const item1 = new User({
   Task: "Welcome to your to do list",
@@ -61,8 +67,14 @@ const item1 = new User({
 const item2 = new User({
   Task: "Hit the + button to add a new item",
 });
-
-
+const itemsarray = [item1, item2];
+//getting date
+const date = new Date();
+const date2 = date.toLocaleDateString('en-US', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long'
+});
 
 //getting user model to use passport
 passport.use(User.createStrategy());
@@ -124,67 +136,8 @@ app.get(
   }
 );
 
-// the route to do home page
-app.get("/", function (req, res) {
-  //checks if the user is authenticated
-  if (req.isAuthenticated()) {
-    User.findById(req.user.id, function (err, foundUser) {
-      if (err) {
-        console.log(err);
-      } else {
-        if (foundUser) {
-          //if user is found, then it pushess two defualts info to the app
-          console.log("found user");
-          if (foundUser.Task.length === 0) {
-            foundUser.Task.push(item1);
-            foundUser.Task.push(item2);
-            foundUser.save();
 
-            res.redirect("/");
-            return;
-          } else {
-            res.render("index", {
-              ListTitle: "Today",
-              NewTasks: foundUser.Task,
-            });
-            console.log("found user & tasks");
-          }
-        } else {
-          res.redirect("/register");
-        }
-      }
-    });
-  } else {
-    //if user isn't it authenticated redirects to login in page
-    res.redirect("/login");
-  }
-});
-
-// // for the added tasks
-app.post("/", function (req, res) {
-  const newTask = req.body.newTask;
-  const listName = req.body.add;
-
- // stores uses new added task
-  const newtask = new User({
-    Task: newTask,
-  });
-
-  User.findById(req.user.id, function (err, user) {
-    if (listName === "Today") {
-      user.Task.push(newtask);
-      user.save(); //saves added task
-      console.log('task added');
-      res.redirect("/");
-      
-    } else {
-      console.log("errors");
-    }
-  });
-});
-
-app
-  .route("/login")
+app.route("/login")
   .get(function (req, res) {
     res.render("login");
   })
@@ -233,6 +186,151 @@ app
     );
   });
 
+app.get("/Logout", function (req, res, next) {
+  //log users out of the session
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/login");
+  });
+});
+// the route to do home page
+app.get("/", function (req, res) {
+  //checks if the user is authenticated
+  if (req.isAuthenticated()) {
+    User.findById(req.user.id, function (err, foundUser) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (foundUser) {
+          //if user is found, then it pushess two defualts info to the app
+          console.log("found user");
+          if (foundUser.Task.length === 0) {
+            foundUser.Task.push(item1);
+            foundUser.Task.push(item2);
+            foundUser.save();
+
+            res.redirect("/");
+            return;
+          } else {
+            res.render("index", {
+              ListTitle: "Today",
+              TodayDate: date2,
+              NewTasks: foundUser.Task,
+            });
+           
+          }
+        } else {
+          res.redirect("/register");
+        }
+      }
+    });
+  } else {
+    //if user isn't it authenticated redirects to login in page
+    res.redirect("/login");
+  }
+});
+
+
+//receives new list value
+app.post("/NEW_LIST", function(req, res) {
+  const newList = req.body.CustomList;
+  //finds the list
+   NewList.findOne({ title: newList }, function (err, foundNewList) {
+     console.log(foundNewList);
+     if (!err) {
+       if (!foundNewList) {
+         //create a new list
+         const List = new NewList({
+           title: newList,
+          //  newTask: itemsarray,
+         });
+         List.save();
+         res.redirect("/" + newList);
+      
+       } else {
+         //renders an already existing list          
+            res.redirect("/" + newList);   
+       }
+     }
+   });
+});
+
+
+//Route for new LIST (creates a new list route)
+app.get('/:NEW_LIST', function(req, res) {
+  const newList = req.params.NEW_LIST;
+  
+  NewList.findOne({ title: newList }, function (err, foundNewList) {
+    
+    if (!err) {
+      if (!foundNewList) {
+        //create a new list
+        const List = new NewList({
+          title: newList,
+          newTask: itemsarray
+        });
+        List.save();
+        res.render("index", {
+          ListTitle: foundNewList.title,
+          TodayDate: date2,
+          NewTasks: foundNewList.newTask,
+        });// renders new list
+        return;
+      } else {
+        //renders an already existing list
+        res.render("index", {
+          ListTitle: foundNewList.title,
+          TodayDate: date2,
+          NewTasks: foundNewList.newTask,
+        });
+        return;
+      }
+    }else{console.log(err);}
+  });
+});
+
+// // for the added tasks
+app.post("/", function (req, res) {
+  const newTask = req.body.newTask;
+  const listName = req.body.add;
+
+ // stores uses new added task
+  const newtask = new User({
+    Task: newTask,
+  });
+  // const newtask2 = new NewList ({
+  //   Task: newTask,
+  // });
+
+  if(listName === 'Today') {
+    User.findById(req.user.id, function (err, user) {
+      if (listName === "Today") {
+        user.Task.push(newtask);
+        user.save(); //saves added task
+        console.log("task added");
+        res.redirect("/");
+      } else {
+        console.log("errors");
+      }
+    });
+  }else{
+     NewList.findOne({ title: listName }, function (err, foundlist) {
+       if (!err) {     
+         foundlist.newTask.push(newtask); //pushes new task to the list
+         foundlist.save();
+         res.redirect("/" + listName);
+       } else {
+         console.log(err);
+       }
+     });
+  }
+  
+ 
+});
+
+
 app.post("/delete", function (req, res) {
   const checkedTask = req.body.deleteIcon; //returns the value of the delete task
   const delList = req.body.delCustomList;//returns the list in which it was created
@@ -268,19 +366,18 @@ app.post("/delete", function (req, res) {
         
       }
     });
+  }else{
+    //delete the task from the list
+    NewList.findOneAndUpdate({title: delList}, {$pull: {newTask:{ Task: checkedTask }}}, function(err, results){
+      if (!err) {
+        res.redirect("/" + delList);
+      } else {
+        console.log(err);
+      }
+    });
   }
-  
 });
 
-app.get("/logout", function (req, res, next) {
-  //log users out of the session
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/login");
-  });
-});
 
 let port = process.env.PORT;
 if (port == null || port == "") {
