@@ -7,7 +7,7 @@
 body {
     /* background-color: #e4e9fd; */
     /* background-color: #f3f3ee; */
-    min-height: 800px;
+    min-height: 1000px;
     background-color: #E4E9FD;
     background-image: -webkit-linear-gradient(65deg, #A683E3 50%, #E4E9FD 50%);
     font-family: 'Noto Sans', sans-serif;
@@ -191,7 +191,7 @@ form.item {
     position: relative;
 }
 
-/********** new list ********/
+/********** new list model ********/
 .new-input {
     display: block;
     padding: 12px;
@@ -316,4 +316,149 @@ footer {
     color: white;
     color: rgba(0, 0, 0, 0.5);
     text-align: center;
+}
+
+
+/**********MEDIA QUERIES ******/
+
+@media screen and (max-width: 560px) {
+    .box {
+        max-width: 380px;
+
+    }
+
+    .fz {
+        font-size: 20px;
+    }
+
+    .app-box {
+        max-width: 420px;
+    }
+
+    section {
+        padding: 0 20px;
+    }
+
+    .list-fx {
+        justify-content: space-between;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .box {
+        max-width: 340px;
+        font-size: 14px;
+    }
+
+    .app-box {
+        max-width: 400px;
+    }
+
+    .btn {
+        min-height: 40px;
+        width: 40px;
+
+    }
+
+    .item .btn {
+        margin-right: 10px;
+        margin-left: 0;
+    }
+
+    .modal-content {
+        width: 25rem;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .box {
+        max-width: 330px;
+        font-size: 14px;
+    }
+
+    .app-box {
+        max-width: 360px;
+    }
+
+    .taks {
+        font-size: 18px;
+    }
+
+    .app-box input[type="text"] {
+        font-size: 16px;
+    }
+
+    .modal-content {
+        width: 22rem;
+    }
+
+    .list-fx {
+        flex-wrap: wrap;
+        justify-content: center;        
+    }
+    .new-input{
+        width: 100%;
+        margin-bottom: 15px;
+        margin-top: 10px;
+    }
+    .list-fx .btn{
+        
+        min-height: 45px;
+        width: 45px;
+    }
+
+}
+
+@media screen and (max-width: 380px) {
+
+    .bx-menu,
+    .bx-dots-vertical-rounded {
+        font-size: 28px;
+    }
+
+    .fz {
+        font-size: 18px;
+    }
+
+    .taks {
+        font-size: 16px;
+    }
+
+    .btn {
+        margin: 10px 0;
+    }
+
+    .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .modal-content {
+        width: 18rem;
+        padding: 1rem ;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .box {
+        max-width: 300px;
+        font-size: 14px !important;
+    }
+
+    .app-box {
+        max-width: 330px;
+    }
+
+    .taks {
+        font-size: 14px;
+    }
+
+    .log {
+        width: 200px;
+        height: 80px;
+    }
+    .modal-content {
+        width: 16rem;
+        padding: 1rem 0.5rem;
+    }
 }

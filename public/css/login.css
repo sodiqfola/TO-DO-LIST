@@ -11,6 +11,10 @@ body {
 }
 
 
+section {
+    padding: 0 20px;
+    margin: 0 10px;
+}
 
 .container {
     margin: 100px auto;
@@ -151,4 +155,38 @@ label {
 
 
 
-/* <a class="btn-a" href="/<%= ListTitle %>">+</a> */
+/***** media query ****/
+
+@media screen and (max-width: 460px) {
+    .h2 {
+        font-size: 28px;
+    }
+}
+
+@media screen and (max-width: 426px) {
+    .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
+    input[type="text"],
+    input[type="email"] {     
+        width: 100%;
+    }
+    .none{
+       display: none;
+    }
+    .p{
+       font-size: 14px;
+    }
+}
+@media screen and (max-width: 385px) {
+   .h2 {
+       font-size: 25px;
+   }
+}
+@media screen and (max-width: 344px) {
+  .btn{
+    font-size: 13px;
+  }
+}

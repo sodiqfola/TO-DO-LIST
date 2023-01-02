@@ -4,14 +4,15 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const ejs = require("ejs");
+// const ejs = require("ejs");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oidc");
 const findOrCreate = require("mongoose-findorcreate");
-const mailchimp = require("@mailchimp/mailchimp_marketing");
+// const mailchimp = require("@mailchimp/mailchimp_marketing");
+
 
 // for using express
 const app = express();
@@ -27,7 +28,7 @@ app.use(
     secret: "damn i hope this shit works",
     resave: false,
     saveUninitialized: false,
-    // cookie: {}
+    cookie: {}
   })
 );
 
@@ -154,14 +155,14 @@ app.route("/login")
       } else {
         //locally authenticate users
         passport.authenticate("local")(req, res, function () {
-          res.redirect("/");
+          res.redirect("/Home");
         });
       }
     });
   });
 
 app
-  .route("/register")
+  .route("/Register")
   .get(function (req, res) {
     res.render("register");
   })
@@ -179,7 +180,7 @@ app
           passport.authenticate("local")(req, res, function (err) {
             console.log(err);
 
-            res.redirect("/");
+            res.redirect("/Home");
           });
         }
       }
@@ -195,8 +196,13 @@ app.get("/Logout", function (req, res, next) {
     res.redirect("/login");
   });
 });
+
 // the route to do home page
+
 app.get("/", function (req, res) {
+  res.redirect("/Home");
+});
+app.get("/Home", function (req, res) {
   //checks if the user is authenticated
   if (req.isAuthenticated()) {
     User.findById(req.user.id, function (err, foundUser) {
@@ -211,7 +217,7 @@ app.get("/", function (req, res) {
             foundUser.Task.push(item2);
             foundUser.save();
 
-            res.redirect("/");
+            res.redirect("/Home");
             return;
           } else {
             res.render("index", {
@@ -222,7 +228,7 @@ app.get("/", function (req, res) {
            
           }
         } else {
-          res.redirect("/register");
+          res.redirect("/Register");
         }
       }
     });
@@ -231,6 +237,7 @@ app.get("/", function (req, res) {
     res.redirect("/login");
   }
 });
+
 
 
 //receives new list value
@@ -260,7 +267,7 @@ app.post("/NEW_LIST", function(req, res) {
 
 //Route for new LIST (creates a new list route)
 app.get('/:NEW_LIST', function(req, res) {
-  const newList = req.params.NEW_LIST;
+  const newList =  req.params.NEW_LIST;
   
   NewList.findOne({ title: newList }, function (err, foundNewList) {
     
@@ -292,7 +299,7 @@ app.get('/:NEW_LIST', function(req, res) {
 });
 
 // // for the added tasks
-app.post("/", function (req, res) {
+app.post("/Home", function (req, res) {
   const newTask = req.body.newTask;
   const listName = req.body.add;
 
@@ -310,7 +317,7 @@ app.post("/", function (req, res) {
         user.Task.push(newtask);
         user.save(); //saves added task
         console.log("task added");
-        res.redirect("/");
+        res.redirect("/Home");
       } else {
         console.log("errors");
       }
@@ -352,7 +359,7 @@ app.post("/delete", function (req, res) {
                 if (err) {
                   console.log(err);
                 } else {
-                  res.redirect("/");
+                  res.redirect("/Home");
                 }
               }
             );
